@@ -1,3 +1,32 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+
+const app = express();
+const PORT = 3000;
+
+app.use(cors());
+app.use(bodyParser.json());
+
+// Sample users for login
+const users = [
+    { username: 'user1', password: 'password1' },
+    { username: 'user2', password: 'password2' }
+];
+
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    const user = users.find(u => u.username === username && u.password === password);
+    
+    if (user) {
+        res.json({ success: true });
+    } else {
+        res.json({ success: false });
+    }
+});
+
+app.get('/', (req, res) => {
+    res.send(`
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,116 +35,132 @@
     <title>Library Book Collection</title>
     <style>
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f1f3f5;
-            color: #333;
             line-height: 1.6;
+            background-color: #f9f9f9;
         }
 
         header {
-            background-color: #2C3E50;
+            background-color: #4CAF50;
             color: white;
             text-align: center;
-            padding: 1.5em 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1em 0;
         }
 
         nav a {
-            margin: 0 20px;
+            margin: 0 15px;
             color: white;
             text-decoration: none;
             font-weight: bold;
-            transition: color 0.3s;
         }
 
-        nav a:hover {
-            color: #18BC9C;
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .button:hover {
+            background-color: #45a049;
         }
 
         section {
-            padding: 30px;
-            margin: 20px auto;
-            max-width: 700px;
+            padding: 20px;
+            margin: 10px auto;
+            max-width: 600px;
             background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         h2 {
-            color: #2C3E50;
-            margin-bottom: 20px;
-            font-size: 1.8em;
-            border-bottom: 2px solid #18BC9C;
-            padding-bottom: 10px;
+            color: #4CAF50;
         }
 
         ul {
             list-style-type: none;
             padding: 0;
-            margin: 0;
         }
 
         ul li {
-            background-color: #f9f9f9;
-            margin: 10px 0;
-            padding: 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1.1em;
-            transition: background-color 0.3s;
-        }
-
-        ul li:hover {
-            background-color: #f0f4f8;
+            background-color: #f4f4f4;
+            margin: 5px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
 
         footer {
             text-align: center;
-            padding: 20px 0;
-            background-color: #2C3E50;
+            padding: 1em 0;
+            background-color: #4CAF50;
             color: white;
             position: relative;
             bottom: 0;
             width: 100%;
-            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .filter {
             margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .filter label {
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #2C3E50;
         }
 
         .filter select {
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 1em;
-            transition: border-color 0.3s;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
         }
 
-        .filter select:focus {
-            border-color: #18BC9C;
-            outline: none;
+        .search-container {
+            margin: 10px auto;
+            max-width: 600px;
         }
 
-        @media (max-width: 768px) {
-            section {
-                margin: 10px;
-                padding: 20px;
-            }
+        .search-container input {
+            width: 70%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
 
-            nav a {
-                margin: 0 10px;
-            }
+        .search-container button {
+            padding: 10px 15px;
+            border-radius: 4px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .search-container button:hover {
+            background-color: #45a049;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px auto;
+        }
+
+        .login-container input {
+            padding: 10px;
+            margin-right: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .login-container button {
+            padding: 10px 15px;
+            border-radius: 4px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -129,6 +174,17 @@
         <a href="#dates">Publication Dates</a>
     </nav>
 </header>
+
+<div class="login-container">
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+</div>
+
+<div class="search-container">
+    <input type="text" id="search" placeholder="Search for books..." oninput="searchBooks()">
+    <button onclick="searchBooks()">Search</button>
+</div>
 
 <section id="genres">
     <h2>Books by Genre</h2>
@@ -145,116 +201,46 @@
     </div>
     <ul id="genreList">
         <li class="fiction">Fiction - The White Tiger</li>
-        <li class="fiction">Fiction - The Great Gatsby</li>
-        <li class="fiction">Fiction - To Kill a Mockingbird</li>
-        <li class="fiction">Fiction - 1984</li>
-        <li class="fiction">Fiction - Pride and Prejudice</li>
-        <li class="fiction">Fiction - The Catcher in the Rye</li>
-        <li class="fiction">Fiction - The Road</li>
-        <li class="fiction">Fiction - Life of Pi</li>
-        <li class="fiction">Fiction - The Kite Runner</li>
-        <li class="fiction">Fiction - The Alchemist</li>
         <li class="historical">Historical Fiction - The Palace of Illusions</li>
-        <li class="historical">Historical Fiction - The Book Thief</li>
-        <li class="historical">Historical Fiction - The Nightingale</li>
-        <li class="historical">Historical Fiction - All the Light We Cannot See</li>
-        <li class="historical">Historical Fiction - Atonement</li>
-        <li class="historical">Historical Fiction - The Pillars of the Earth</li>
-        <li class="historical">Historical Fiction - The Help</li>
-        <li class="historical">Historical Fiction - The Other Boleyn Girl</li>
-        <li class="historical">Historical Fiction - Water for Elephants</li>
-        <li class="historical">Historical Fiction - Outlander</li>
         <li class="nonfiction">Non-Fiction - India After Gandhi</li>
-        <li class="nonfiction">Non-Fiction - Sapiens: A Brief History of Humankind</li>
-        <li class="nonfiction">Non-Fiction - The Immortal Life of Henrietta Lacks</li>
-        <li class="nonfiction">Non-Fiction - Educated</li>
-        <li class="nonfiction">Non-Fiction - Becoming</li>
-        <li class="nonfiction">Non-Fiction - The Wright Brothers</li>
-        <li class="nonfiction">Non-Fiction - The Glass Castle</li>
-        <li class="nonfiction">Non-Fiction - Unbroken</li>
-        <li class="nonfiction">Non-Fiction - The Soul of America</li>
-        <li class="nonfiction">Non-Fiction - Quiet: The Power of Introverts</li>
         <li class="mystery">Mystery - Sacred Games</li>
-        <li class="mystery">Mystery - The Girl with the Dragon Tattoo</li>
-        <li class="mystery">Mystery - Gone Girl</li>
-        <li class="mystery">Mystery - The Da Vinci Code</li>
-        <li class="mystery">Mystery - And Then There Were None</li>
-        <li class="mystery">Mystery - The Cuckoo's Calling</li>
-        <li class="mystery">Mystery - In the Woods</li>
-        <li class="mystery">Mystery - The No. 1 Ladies' Detective Agency</li>
-        <li class="mystery">Mystery - The Secret History</li>
-        <li class="mystery">Mystery - The Woman in White</li>
         <li class="poetry">Poetry - Gitanjali</li>
-        <li class="poetry">Poetry - The Sun and Her Flowers</li>
-        <li class="poetry">Poetry - Milk and Honey</li>
-        <li class="poetry">Poetry - Leaves of Grass</li>
-        <li class="poetry">Poetry - The Waste Land</li>
-        <li class="poetry">Poetry - The Love Song of J. Alfred Prufrock</li>
-        <li class="poetry">Poetry - The Raven</li>
-        <li class="poetry">Poetry - A Street in Bronzeville</li>
-        <li class="poetry">Poetry - The Collected Poems of W.B. Yeats</li>
-        <li class="poetry">Poetry - Ariel</li>
-        <li class="fiction">Fiction - The Time Traveler's Wife</li>
-        <li class="fiction">Fiction - The Picture of Dorian Gray</li>
-        <li class="fiction">Fiction - The Brief Wondrous Life of Oscar Wao</li>
-        <li class="fiction">Fiction - A Thousand Splendid Suns</li>
-        <li class="fiction">Fiction - The Fault in Our Stars</li>
-        <li class="fiction">Fiction - Little Fires Everywhere</li>
         <li class="fiction">Fiction - The Night Circus</li>
-        <li class="historical">Historical Fiction - The Other Einstein</li>
-        <li class="historical">Historical Fiction - The Tea Girl of Hummingbird Lane</li>
-        <li class="historical">Historical Fiction - The Night Watchman</li>
-        <li class="historical">Historical Fiction - The Tattooist of Auschwitz</li>
-        <li class="historical">Historical Fiction - The Alice Network</li>
-        <li class="historical">Historical Fiction - The Girl Who Lived</li>
-        <li class="nonfiction">Non-Fiction - Thinking, Fast and Slow</li>
-        <li class="nonfiction">Non-Fiction - Freakonomics</li>
-        <li class="nonfiction">Non-Fiction - The Body Keeps the Score</li>
-        <li class="nonfiction">Non-Fiction - The Subtle Art of Not Giving a F*ck</li>
-        <li class="nonfiction">Non-Fiction - Atomic Habits</li>
-        <li class="nonfiction">Non-Fiction - Outliers</li>
-        <li class="mystery">Mystery - The Woman in Cabin 10</li>
-        <li class="mystery">Mystery - The Couple Next Door</li>
-        <li class="mystery">Mystery - Behind Closed Doors</li>
-        <li class="mystery">Mystery - The Family Upstairs</li>
-        <li class="mystery">Mystery - The Silent Patient</li>
+        <li class="fiction">Fiction - A Little Life</li>
+        <li class="historical">Historical Fiction - The Book Thief</li>
+        <li class="mystery">Mystery - The Girl with the Dragon Tattoo</li>
+        <li class="poetry">Poetry - Leaves of Grass</li>
+        <li class="nonfiction">Non-Fiction - Sapiens: A Brief History of Humankind</li>
+        <li class="fiction">Fiction - The Great Gatsby</li>
+        <li class="historical">Historical Fiction - All the Light We Cannot See</li>
+        <li class="nonfiction">Non-Fiction - Educated</li>
+        <li class="mystery">Mystery - Gone Girl</li>
+        <li class="poetry">Poetry - The Waste Land</li>
+        <li class="fiction">Fiction - The Kite Runner</li>
+        <li class="historical">Historical Fiction - The Other Boleyn Girl</li>
+        <li class="nonfiction">Non-Fiction - Becoming</li>
         <li class="mystery">Mystery - Big Little Lies</li>
-        <li class="poetry">Poetry - The Essential Rumi</li>
-        <li class="poetry">Poetry - The Complete Poems of Emily Dickinson</li>
-        <li class="poetry">Poetry - The Poetry of Pablo Neruda</li>
-        <li class="poetry">Poetry - The Collected Poems of Langston Hughes</li>
-        <li class="poetry">Poetry - The Complete Poems of John Keats</li>
-        <li class="poetry">Poetry - The Moon and Sixpence</li>
-        <li class="fiction">Fiction - The Girl on the Train</li>
-        <li class="fiction">Fiction - The Underground Railroad</li>
-        <li class="fiction">Fiction - An American Marriage</li>
-        <li class="fiction">Fiction - The Road Back</li>
+        <li class="poetry">Poetry - The Sun and Her Flowers</li>
+        <li class="fiction">Fiction - Life of Pi</li>
+        <li class="historical">Historical Fiction - The Nightingale</li>
+        <li class="nonfiction">Non-Fiction - The Immortal Life of Henrietta Lacks</li>
+        <li class="mystery">Mystery - The Da Vinci Code</li>
+        <li class="poetry">Poetry - Milk and Honey</li>
+        <li class="fiction">Fiction - The Road</li>
+        <li class="historical">Historical Fiction - The Help</li>
+        <li class="nonfiction">Non-Fiction - The Wright Brothers</li>
+        <li class="mystery">Mystery - In the Woods</li>
+        <li class="poetry">Poetry - The Collected Poems of W.B. Yeats</li>
+        <li class="fiction">Fiction - The Goldfinch</li>
+        <li class="historical">Historical Fiction - The Book Thief</li>
+        <li class="nonfiction">Non-Fiction - The Glass Castle</li>
+        <li class="mystery">Mystery - The Woman in the Window</li>
+        <li class="poetry">Poetry - Ariel</li>
         <li class="fiction">Fiction - Where the Crawdads Sing</li>
-        <li class="fiction">Fiction - The Help</li>
-        <li class="historical">Historical Fiction - The Night Watchman</li>
-        <li class="historical">Historical Fiction - Homegoing</li>
-        <li class="historical">Historical Fiction - The Good Lord Bird</li>
-        <li class="historical">Historical Fiction - The Book of Longings</li>
-        <li class="historical">Historical Fiction - The Great Alone</li>
-        <li class="historical">Historical Fiction - The Last Train to London</li>
-        <li class="nonfiction">Non-Fiction - Bad Blood: Secrets and Lies in a Silicon Valley Startup</li>
-        <li class="nonfiction">Non-Fiction - The Devil's Chessboard</li>
-        <li class="nonfiction">Non-Fiction - A People’s History of the United States</li>
-        <li class="nonfiction">Non-Fiction - Just Mercy</li>
-        <li class="nonfiction">Non-Fiction - The New Jim Crow</li>
-        <li class="nonfiction">Non-Fiction - I Am Malala</li>
-        <li class="mystery">Mystery - The 7 1/2 Deaths of Evelyn Hardcastle</li>
-        <li class="mystery">Mystery - The Wife Between Us</li>
-        <li class="mystery">Mystery - The Lying Game</li>
-        <li class="mystery">Mystery - Then She Was Gone</li>
-        <li class="mystery">Mystery - The Chain</li>
-        <li class="mystery">Mystery - The Last Mrs. Parrish</li>
-        <li class="poetry">Poetry - The Complete Poems of Anna Akhmatova</li>
-        <li class="poetry">Poetry - The Poetry of Robert Frost</li>
-        <li class="poetry">Poetry - The Poetry of William Carlos Williams</li>
-        <li class="poetry">Poetry - The Collected Poems of Ted Hughes</li>
-        <li class="poetry">Poetry - The Poetry of John Keats</li>
-        <li class="poetry">Poetry - The Sunflower</li>
+        <li class="historical">Historical Fiction - The Paris Library</li>
+        <li class="nonfiction">Non-Fiction - Hillbilly Elegy</li>
+        <li class="mystery">Mystery - The Silent Patient</li>
+        <li class="poetry">Poetry - The Essential Rumi</li>
     </ul>
 </section>
 
@@ -283,22 +269,18 @@
     </div>
     <ul id="authorList">
         <li class="adiga">Aravind Adiga - The White Tiger</li>
-        <li class="adiga">Aravind Adiga - Amnesty</li>
         <li class="divakaruni">Chitra Banerjee Divakaruni - The Palace of Illusions</li>
-        <li class="divakaruni">Chitra Banerjee Divakaruni - One Amazing Thing</li>
         <li class="guha">Ramachandra Guha - India After Gandhi</li>
-        <li class="guha">Ramachandra Guha - Makers of Modern India</li>
         <li class="chandra">Vikram Chandra - Sacred Games</li>
-        <li class="chandra">Vikram Chandra - Red Earth and Pouring Rain</li>
         <li class="tagore">Rabindranath Tagore - Gitanjali</li>
-        <li class="frost">Robert Frost - The Road Not Taken</li>
+        <li class="frost">Robert Frost - The Collected Poems</li>
         <li class="dickinson">Emily Dickinson - The Complete Poems</li>
         <li class="morrison">Toni Morrison - Beloved</li>
         <li class="orwell">George Orwell - 1984</li>
         <li class="hemingway">Ernest Hemingway - The Old Man and the Sea</li>
         <li class="austen">Jane Austen - Pride and Prejudice</li>
         <li class="shakespeare">William Shakespeare - Hamlet</li>
-        <li class="chevalier">Tracy Chevalier - Girl with a Pearl Earring</li>
+        <li class="chevalier">Tracy Chevalier - The Girl with a Pearl Earring</li>
         <li class="martel">Yann Martel - Life of Pi</li>
         <li class="coelho">Paulo Coelho - The Alchemist</li>
     </ul>
@@ -329,22 +311,22 @@
         </select>
     </div>
     <ul id="dateList">
-        <li class="date2008">2008 - The White Tiger</li>
-        <li class="date2009">2009 - The Palace of Illusions</li>
-        <li class="date2010">2010 - Freedom Song</li>
-        <li class="date2011">2011 - The Night Circus</li>
-        <li class="date2012">2012 - The Fault in Our Stars</li>
-        <li class="date2013">2013 - The Goldfinch</li>
-        <li class="date2014">2014 - All the Light We Cannot See</li>
-        <li class="date2015">2015 - A Little Life</li>
-        <li class="date2016">2016 - The Underground Railroad</li>
-        <li class="date2017">2017 - The Handmaid's Tale</li>
-        <li class="date2018">2018 - Where the Crawdads Sing</li>
-        <li class="date2019">2019 - The Testaments</li>
-        <li class="date2020">2020 - The Invisible Life of Addie LaRue</li>
-        <li class="date2021">2021 - Klara and the Sun</li>
-        <li class="date2022">2022 - The Lincoln Highway</li>
-        <li class="date2023">2023 - The Island of Missing Trees</li>
+        <li class="2008">2008 - The White Tiger</li>
+        <li class="2009">2009 - The Palace of Illusions</li>
+        <li class="2010">2010 - India After Gandhi</li>
+        <li class="2011">2011 - Sacred Games</li>
+        <li class="2012">2012 - Gitanjali</li>
+        <li class="2013">2013 - The Night Circus</li>
+        <li class="2014">2014 - A Little Life</li>
+        <li class="2015">2015 - The Book Thief</li>
+        <li class="2016">2016 - The Girl with the Dragon Tattoo</li>
+        <li class="2017">2017 - Sapiens: A Brief History of Humankind</li>
+        <li class="2018">2018 - The Great Gatsby</li>
+        <li class="2019">2019 - All the Light We Cannot See</li>
+        <li class="2020">2020 - Educated</li>
+        <li class="2021">2021 - Gone Girl</li>
+        <li class="2022">2022 - The Road</li>
+        <li class="2023">2023 - The Nightingale</li>
     </ul>
 </section>
 
@@ -353,30 +335,58 @@
 </footer>
 
 <script>
-    function filterBooks(filterType) {
-        const genreFilter = document.getElementById('genreFilter').value;
-        const authorFilter = document.getElementById('authorFilter').value;
-        const dateFilter = document.getElementById('dateFilter').value;
-
+    function searchBooks() {
+        const query = document.getElementById('search').value.toLowerCase();
         const allBooks = document.querySelectorAll('ul li');
 
         allBooks.forEach(book => {
-            let show = true;
+            if (book.textContent.toLowerCase().includes(query)) {
+                book.style.display = 'block';
+            } else {
+                book.style.display = 'none';
+            }
+        });
+    }
 
-            if (filterType === 'genre' && genreFilter !== 'all') {
-                show = book.classList.contains(genreFilter);
-            }
-            if (filterType === 'author' && authorFilter !== 'all') {
-                show = book.classList.contains(authorFilter);
-            }
-            if (filterType === 'date' && dateFilter !== 'all') {
-                show = book.classList.contains(`date${dateFilter}`);
-            }
+    function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
 
-            book.style.display = show ? 'block' : 'none';
+        fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Login successful!');
+            } else {
+                alert('Login failed. Please try again.');
+            }
+        });
+    }
+
+    function filterBooks(filterType) {
+        const selectedValue = document.getElementById(filterType + 'Filter').value;
+        const allBooks = document.querySelectorAll(`ul#${filterType}List li`);
+
+        allBooks.forEach(book => {
+            if (selectedValue === 'all' || book.classList.contains(selectedValue)) {
+                book.style.display = 'block';
+            } else {
+                book.style.display = 'none';
+            }
         });
     }
 </script>
-
 </body>
 </html>
+    `);
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
